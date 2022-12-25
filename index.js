@@ -34,16 +34,16 @@ app.post('/', async(req, res, next) => {
         const urlExists = await ShortUrl.findOne({ url })
         if(urlExists) {
             res.render('index', 
-            // {short_url: `${req.hostname}/${urlExists.shortId}`,
-            {short_url: `${req.headers.host}/${urlExists.shortId}`
+            {short_url: `${req.hostname}/${urlExists.shortId}`,
+            // {short_url: `${req.headers.host}/${urlExists.shortId}`
         })
             return
         }
         const shortUrl = new ShortUrl({url: url, shortId: shortId.generate() })
         const result = await shortUrl.save()
         res.render('index', 
-        // {short_url: `${req.hostname}/${urlExists.shortId}`,
-        {short_url: `${req.headers.host}/${urlExists.shortId}`
+        {short_url: `${req.hostname}/${urlExists.shortId}`,
+        // {short_url: `${req.headers.host}/${urlExists.shortId}`
     })
         
     } catch (error) {
