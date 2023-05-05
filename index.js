@@ -1,10 +1,10 @@
 const express = require('express');
 require('dotenv').config();
-const shortId = require('shortid');
 const createHttpError = require('http-errors');
 const mongoose = require('mongoose');
 const path = require('path');
 const ShortUrl = require('./models/url.model');
+
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -17,6 +17,18 @@ mongoose.set("strictQuery", false);
 mongoose.connect(process.env.MONGODB , {
     dbName: 'url-shortner'
 }).then(()=> {console.log('database connected')}).catch((err)=> {console.log(`database did not connect sucesfully ${err}`)});
+
+const generateRandomString = (length) => {
+    let result = '';
+    const characters =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+  };
+
 
 app.set( 'view engine', 'ejs');
 
@@ -32,20 +44,24 @@ app.post('/', async(req, res, next) => {
             throw createHttpError.BadRequest('provide a valid url')
         }
         const urlExists = await ShortUrl.findOne({ url })
-        if(urlExists) {
-            res.render('index', 
-            {short_url: `${req.hostname}/${urlExists.shortId}`,
-            // {short_url: `${req.headers.host}/${urlExists.shortId}`
-        })
-            return
-        }
-        const shortUrl = new ShortUrl({url: url, shortId: shortId.generate() })
+        console.log(urlExists)
+        if(urlExists === null ){
+            const shortUrl = new ShortUrl({url: url, shortId: generateRandomString(6) })
         const result = await shortUrl.save()
         res.render('index', 
-        {short_url: `${req.hostname}/${urlExists.shortId}`,
-        // {short_url: `${req.headers.host}/${urlExists.shortId}`
+        {short_url: `${req.hostname}/${result.shortId }`
     })
-        
+       
+        }
+        if(urlExists) {
+            
+            res.render('index', 
+            {short_url: `${req.hostname}/${urlExists.shortId}`
+        })
+    }
+    
+
+         
     } catch (error) {
         next(error)
     }
