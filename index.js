@@ -44,23 +44,20 @@ app.post('/', async(req, res, next) => {
             throw createHttpError.BadRequest('provide a valid url')
         }
         const urlExists = await ShortUrl.findOne({ url })
-        console.log(urlExists)
-        if(urlExists === null ){
-            const shortUrl = new ShortUrl({url: url, shortId: generateRandomString(6) })
-        const result = await shortUrl.save()
-        res.render('index', 
-        {short_url: `${req.hostname}/${result.shortId }`
-    })
-       
-        }
+        
         if(urlExists) {
             
             res.render('index', 
-            {short_url: `${req.hostname}/${urlExists.shortId}`
+            {short_url: `${urlExists.shortId}`
         })
-    }
+        return
     
-
+    }
+            const shortUrl = new ShortUrl({url: url, shortId: generateRandomString(6) })
+        const result = await shortUrl.save()
+        res.render('index', 
+        {short_url: `${result.shortId }`
+    })
          
     } catch (error) {
         next(error)
